@@ -239,6 +239,10 @@
 			"project": "vscode-workbench"
 		},
 		{
+			"name": "vs/workbench/contrib/modelVisualizer",
+			"project": "vscode-workbench"
+		},
+		{
 			"name": "vs/workbench/contrib/terminal",
 			"project": "vscode-workbench"
 		},

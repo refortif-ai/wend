@@ -286,6 +286,9 @@ import './contrib/comments/browser/comments.contribution.js';
 // URL Support
 import './contrib/url/browser/url.contribution.js';
 
+// Model Visualizer
+import './contrib/modelVisualizer/browser/modelVisualizer.contribution.js';
+
 // Webview
 import './contrib/webview/browser/webview.contribution.js';
 import './contrib/webviewPanel/browser/webviewPanel.contribution.js';
