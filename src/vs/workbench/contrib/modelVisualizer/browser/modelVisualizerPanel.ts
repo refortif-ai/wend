@@ -139,17 +139,17 @@ function getWebviewHtml(scriptContent: string): string {
 <title>Model Visualizer</title>
 <style>
 :root {
-	--surface: #1a1a2e;
-	--surface-block: #2a2a3e;
-	--surface-pill: #353550;
-	--text-primary: #e0e0f0;
-	--text-muted: #8888a8;
-	--text-dim: #6c6c8a;
-	--border: #3a3a50;
-	--font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+	--surface: #0d0d0d;
+	--surface-ui: #161616;
+	--text-primary: #c8c8c8;
+	--text-muted: #666;
+	--text-dim: #444;
+	--border: #222;
+	--font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+	--font-mono: 'SF Mono', 'Fira Code', Consolas, monospace;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: var(--surface); color: var(--text-primary); font-family: var(--font-mono); overflow: hidden; width: 100vw; height: 100vh; }
+body { background: var(--surface); color: var(--text-primary); font-family: var(--font-sans); overflow: hidden; width: 100vw; height: 100vh; -webkit-font-smoothing: antialiased; }
 #app { width: 100%; height: 100%; position: relative; }
 
 .empty-state {
@@ -162,51 +162,53 @@ body { background: var(--surface); color: var(--text-primary); font-family: var(
 	display: flex; gap: 6px; align-items: center;
 }
 .tool-btn {
-	background: var(--surface-block); border: 1px solid var(--border);
-	border-radius: 6px; color: var(--text-muted); font-family: var(--font-mono);
-	font-size: 11px; padding: 5px 10px; cursor: pointer; transition: all 0.15s;
+	background: var(--surface-ui); border: 1px solid var(--border);
+	border-radius: 4px; color: var(--text-muted); font-family: var(--font-sans);
+	font-size: 11px; padding: 4px 10px; cursor: pointer; transition: all 0.15s;
 }
-.tool-btn:hover { color: var(--text-primary); border-color: #89b4fa; background: #353550; }
+.tool-btn:hover { color: var(--text-primary); border-color: #444; }
 
 .breadcrumb {
 	display: flex; align-items: center; gap: 2px;
-	font-size: 12px; color: var(--text-muted); margin-left: 8px;
+	font-size: 11.5px; color: var(--text-muted); margin-left: 8px;
 }
-.breadcrumb-item { padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
-.breadcrumb-item:hover { background: #353550; color: var(--text-primary); }
-.breadcrumb-current { color: var(--text-primary); font-weight: 600; }
+.breadcrumb-item { padding: 2px 6px; border-radius: 3px; transition: all 0.15s; }
+.breadcrumb-item:hover { background: #1a1a1a; color: var(--text-primary); }
+.breadcrumb-current { color: #999; font-weight: 500; }
 .breadcrumb-sep { color: var(--text-dim); }
 
 .model-badge {
 	position: absolute; top: 8px; right: 8px; z-index: 10;
-	background: var(--surface-block); border: 1px solid var(--border);
-	border-radius: 6px; padding: 5px 12px; font-size: 11px; color: var(--text-muted);
+	background: var(--surface-ui); border: 1px solid var(--border);
+	border-radius: 4px; padding: 4px 10px; font-size: 10.5px; color: var(--text-dim);
+	font-family: var(--font-mono);
 }
 
 .search-bar {
-	position: absolute; top: 40px; right: 8px; z-index: 10;
-	background: var(--surface-block); border: 1px solid var(--border);
-	border-radius: 6px; padding: 6px 10px; display: none;
+	position: absolute; top: 36px; right: 8px; z-index: 10;
+	background: var(--surface-ui); border: 1px solid var(--border);
+	border-radius: 4px; padding: 5px 10px; display: none;
 }
 .search-bar.visible { display: flex; }
 .search-bar input {
 	background: transparent; border: none; color: var(--text-primary);
-	font-family: var(--font-mono); font-size: 12px; outline: none; width: 200px;
+	font-family: var(--font-sans); font-size: 12px; outline: none; width: 200px;
 }
 
 svg.graph { width: 100%; height: 100%; cursor: grab; }
 svg.graph:active { cursor: grabbing; }
 
 .block { cursor: default; transition: opacity 0.15s; }
-.block:hover .block-rect { stroke: #89b4fa; stroke-width: 1.5; }
-.search-match .block-rect { stroke: #f9e2af !important; stroke-width: 2 !important; }
-.search-dimmed { opacity: 0.2; }
-.chevron-btn:hover circle { fill: #4a4a65; }
+.block:hover .block-rect { stroke: #333; }
+.search-match .block-rect { stroke: #666 !important; stroke-width: 1.5 !important; }
+.search-dimmed { opacity: 0.15; }
+.chevron-btn { transition: fill 0.15s; }
+.chevron-btn:hover { fill: #888 !important; }
 
 .minimap {
-	position: absolute; bottom: 8px; right: 8px; width: 150px; height: 100px;
-	background: var(--surface-block); border: 1px solid var(--border);
-	border-radius: 6px; overflow: hidden; z-index: 10; cursor: pointer;
+	position: absolute; bottom: 8px; right: 8px; width: 140px; height: 90px;
+	background: var(--surface-ui); border: 1px solid var(--border);
+	border-radius: 4px; overflow: hidden; z-index: 10; cursor: pointer; opacity: 0.7;
 }
 .minimap svg { width: 100%; height: 100%; }
 </style>

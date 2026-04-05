@@ -64,17 +64,17 @@ declare function acquireVsCodeApi(): VsCodeApi;
 // ---- Constants ----
 
 const ACCENT: Record<string, string> = {
-	container: '#6c7086',
-	attention: '#89b4fa',
-	feedforward: '#a6e3a1',
-	normalization: '#cba6f7',
-	loss: '#fab387',
-	embedding: '#f9e2af',
-	linear: '#74c7ec',
-	activation: '#f38ba8',
-	dropout: '#9399b2',
-	pooling: '#94e2d5',
-	other: '#6c7086',
+	container: '#555555',
+	attention: '#5b8abf',
+	feedforward: '#6b9e6b',
+	normalization: '#8b7bab',
+	loss: '#b07a5a',
+	embedding: '#b8a472',
+	linear: '#5a9eab',
+	activation: '#a06070',
+	dropout: '#707070',
+	pooling: '#5a8a7a',
+	other: '#555555',
 };
 
 const NODE_W = 260;
@@ -257,13 +257,13 @@ function render(): void {
 		return;
 	}
 
-	// Add drop shadow filter
+	// Add subtle drop shadow filter
 	const defs = svgE('defs');
-	const filter = svgE('filter', { id: 'blockShadow', x: '-10%', y: '-10%', width: '130%', height: '140%' });
-	const feFlood = svgE('feFlood', { 'flood-color': 'rgba(0,0,0,0.35)', result: 'flood' });
+	const filter = svgE('filter', { id: 'blockShadow', x: '-5%', y: '-5%', width: '115%', height: '120%' });
+	const feFlood = svgE('feFlood', { 'flood-color': 'rgba(0,0,0,0.4)', result: 'flood' });
 	const feComposite = svgE('feComposite', { in: 'flood', in2: 'SourceGraphic', operator: 'in', result: 'shadow' });
-	const feOffset = svgE('feOffset', { in: 'shadow', dx: '0', dy: '3', result: 'offsetShadow' });
-	const feBlur = svgE('feGaussianBlur', { in: 'offsetShadow', stdDeviation: '4', result: 'blurShadow' });
+	const feOffset = svgE('feOffset', { in: 'shadow', dx: '0', dy: '1', result: 'offsetShadow' });
+	const feBlur = svgE('feGaussianBlur', { in: 'offsetShadow', stdDeviation: '2', result: 'blurShadow' });
 	const feMerge = svgE('feMerge');
 	feMerge.appendChild(svgE('feMergeNode', { in: 'blurShadow' }));
 	feMerge.appendChild(svgE('feMergeNode', { in: 'SourceGraphic' }));
@@ -275,8 +275,8 @@ function render(): void {
 	defs.appendChild(filter);
 
 	// Arrowhead marker
-	const marker = svgE('marker', { id: 'arrow', markerWidth: '10', markerHeight: '8', refX: '9', refY: '4', orient: 'auto' });
-	marker.appendChild(svgE('path', { d: 'M 0 0 L 10 4 L 0 8 L 3 4 Z', fill: '#585870' }));
+	const marker = svgE('marker', { id: 'arrow', markerWidth: '8', markerHeight: '6', refX: '7', refY: '3', orient: 'auto' });
+	marker.appendChild(svgE('path', { d: 'M 0 0 L 8 3 L 0 6 L 2 3 Z', fill: '#555', opacity: '0.6' }));
 	defs.appendChild(marker);
 
 	viewport.appendChild(defs);
@@ -302,6 +302,9 @@ function render(): void {
 	renderMinimap(nodes);
 }
 
+const FONT_SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+const FONT_MONO = "'SF Mono', 'Fira Code', 'Consolas', monospace";
+
 function renderBlock(ln: LayoutNode): SVGElement {
 	const n = ln.node;
 	const { x, y, w, h } = ln;
@@ -322,91 +325,74 @@ function renderBlock(ln: LayoutNode): SVGElement {
 
 	// Repeat shadows
 	if (n.repeat_count && n.repeat_count > 1) {
-		g.appendChild(svgE('rect', { x: x + 5, y: y - 5, width: w, height: h, rx: '8', ry: '8', fill: '#22223a', opacity: '0.4' }));
-		g.appendChild(svgE('rect', { x: x + 3, y: y - 3, width: w, height: h, rx: '8', ry: '8', fill: '#26263d', opacity: '0.5' }));
+		g.appendChild(svgE('rect', { x: x + 4, y: y - 4, width: w, height: h, rx: '4', ry: '4', fill: '#161616', opacity: '0.5' }));
+		g.appendChild(svgE('rect', { x: x + 2, y: y - 2, width: w, height: h, rx: '4', ry: '4', fill: '#191919', opacity: '0.6' }));
 	}
 
 	// Main block rect
 	g.appendChild(svgE('rect', {
 		x, y, width: w, height: h,
-		rx: '8', ry: '8',
-		fill: '#2a2a3e',
-		stroke: '#3a3a50',
+		rx: '4', ry: '4',
+		fill: '#1a1a1a',
+		stroke: '#2a2a2a',
 		'stroke-width': '1',
 		filter: 'url(#blockShadow)',
 		class: 'block-rect',
 	}));
 
-	// Colored header bar
-	g.appendChild(svgE('rect', { x, y, width: w, height: '5', rx: '8', ry: '8', fill: accent }));
-	// Cover bottom corners of header (so only top is rounded)
-	g.appendChild(svgE('rect', { x, y: y + 3, width: w, height: '3', fill: accent }));
+	// Left accent border (thin 3px bar)
+	g.appendChild(svgE('rect', {
+		x, y, width: '3', height: h,
+		rx: '1.5', ry: '1.5',
+		fill: accent,
+		opacity: n.traceable ? '1' : '0.4',
+	}));
 
-	// Name
-	const nameEl = svgE('text', { x: x + 14, y: y + 26, fill: '#e0e0f0', 'font-size': '13', 'font-weight': '600', 'font-family': "'JetBrains Mono', 'Fira Code', Consolas, monospace" });
+	// Name (system sans-serif)
+	const nameEl = svgE('text', { x: x + 14, y: y + 24, fill: '#ddd', 'font-size': '12.5', 'font-weight': '500', 'font-family': FONT_SANS, 'text-rendering': 'geometricPrecision' });
 	nameEl.textContent = n.name;
 	g.appendChild(nameEl);
 
 	// Class name
-	const classEl = svgE('text', { x: x + 14, y: y + 41, fill: '#8888a8', 'font-size': '11', 'font-family': "'JetBrains Mono', 'Fira Code', Consolas, monospace" });
+	const classEl = svgE('text', { x: x + 14, y: y + 40, fill: '#888', 'font-size': '10.5', 'font-family': FONT_SANS, 'text-rendering': 'geometricPrecision' });
 	classEl.textContent = n.class_name;
 	g.appendChild(classEl);
 
-	// Shape pills
+	// Shape text (monospace, no pill background)
 	if (n.input_shapes.length > 0) {
-		const inStr = shapeStr(n.input_shapes[0]);
-		const px = x + 14;
-		const py = y + 56;
-		const pw = inStr.length * 6.5 + 12;
-		g.appendChild(svgE('rect', { x: px, y: py - 9, width: pw, height: '17', rx: '8', ry: '8', fill: '#353550' }));
-		const pt = svgE('text', { x: px + pw / 2, y: py, fill: '#b0b0cc', 'font-size': '10', 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': "'JetBrains Mono', monospace" });
-		pt.textContent = inStr;
-		g.appendChild(pt);
-
+		let shapeText = shapeStr(n.input_shapes[0]);
 		if (n.output_shapes.length > 0) {
-			const outStr = shapeStr(n.output_shapes[0]);
-			const arrowX = px + pw + 5;
-			const at = svgE('text', { x: arrowX, y: py, fill: '#6c6c8a', 'font-size': '11', 'dominant-baseline': 'central', 'font-family': "monospace" });
-			at.textContent = '\u2192';
-			g.appendChild(at);
-			const opx = arrowX + 14;
-			const opw = outStr.length * 6.5 + 12;
-			g.appendChild(svgE('rect', { x: opx, y: py - 9, width: opw, height: '17', rx: '8', ry: '8', fill: '#353550' }));
-			const opt = svgE('text', { x: opx + opw / 2, y: py, fill: '#b0b0cc', 'font-size': '10', 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': "'JetBrains Mono', monospace" });
-			opt.textContent = outStr;
-			g.appendChild(opt);
+			shapeText += '  \u2192  ' + shapeStr(n.output_shapes[0]);
 		}
+		const st = svgE('text', { x: x + 14, y: y + 57, fill: '#999', 'font-size': '9.5', 'font-family': FONT_MONO, 'text-rendering': 'geometricPrecision' });
+		st.textContent = shapeText;
+		g.appendChild(st);
 	}
 
 	// Drill-down chevron for containers
 	if (hasChildren) {
-		const chevG = svgE('g', { class: 'chevron-btn' });
-		chevG.appendChild(svgE('circle', { cx: x + w - 18, cy: y + 24, r: '10', fill: '#353550', stroke: '#4a4a65', 'stroke-width': '1' }));
-		const chevText = svgE('text', { x: x + w - 18, y: y + 25, fill: '#b0b0cc', 'font-size': '11', 'text-anchor': 'middle', 'dominant-baseline': 'central' });
+		const chevText = svgE('text', { x: x + w - 16, y: y + 25, fill: '#444', 'font-size': '10', 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': FONT_SANS, class: 'chevron-btn' });
 		chevText.textContent = '\u25B6';
-		chevG.appendChild(chevText);
-		chevG.style.cursor = 'pointer';
-		chevG.addEventListener('click', (e) => {
+		chevText.style.cursor = 'pointer';
+		chevText.addEventListener('click', (e) => {
 			e.stopPropagation();
 			drillDown(ln.id);
 		});
-		g.appendChild(chevG);
+		g.appendChild(chevText);
 	}
 
 	// Repeat badge
 	if (n.repeat_count && n.repeat_count > 1) {
-		const badgeX = x + w - (hasChildren ? 42 : 14);
+		const badgeX = x + w - (hasChildren ? 32 : 12);
 		const badgeText = '\u00D7' + n.repeat_count;
-		const badgeW = badgeText.length * 8 + 10;
-		g.appendChild(svgE('rect', { x: badgeX - badgeW + 4, y: y + 15, width: badgeW, height: '18', rx: '9', ry: '9', fill: '#89b4fa22', stroke: '#89b4fa44', 'stroke-width': '1' }));
-		const badge = svgE('text', { x: badgeX - badgeW / 2 + 4, y: y + 25, fill: '#89b4fa', 'font-size': '11', 'font-weight': '700', 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': "'JetBrains Mono', monospace" });
+		const badge = svgE('text', { x: badgeX, y: y + 25, fill: '#5a5a5a', 'font-size': '10', 'font-weight': '600', 'text-anchor': 'end', 'dominant-baseline': 'central', 'font-family': FONT_MONO });
 		badge.textContent = badgeText;
 		g.appendChild(badge);
 	}
 
-	// Untraceable badge
+	// Untraceable indicator (dashed left border replaces solid)
 	if (!n.traceable) {
-		const warn = svgE('text', { x: x + w - 16, y: y + 42, fill: '#fab387', 'font-size': '14' });
+		const warn = svgE('text', { x: x + w - 14, y: y + 40, fill: '#6a4a3a', 'font-size': '11', 'text-anchor': 'middle' });
 		warn.textContent = '\u26A0';
 		g.appendChild(warn);
 	}
@@ -443,20 +429,18 @@ function renderFlowEdge(le: LayoutEdge): SVGElement {
 	g.appendChild(svgE('path', {
 		d,
 		fill: 'none',
-		stroke: '#585870',
-		'stroke-width': '1.5',
+		stroke: '#555',
+		'stroke-width': '1',
 		'marker-end': 'url(#arrow)',
-		opacity: '0.6',
+		opacity: '0.5',
 	}));
 
-	// Shape pill at midpoint
+	// Shape text at midpoint (no background pill)
 	if (le.edge.shape && le.edge.shape.length > 0) {
 		const midIdx = Math.floor(pts.length / 2);
 		const mid = pts[midIdx];
 		const st = shapeStr(le.edge.shape);
-		const sw = st.length * 5.5 + 10;
-		g.appendChild(svgE('rect', { x: mid.x + 10, y: mid.y - 8, width: sw, height: '15', rx: '7', ry: '7', fill: '#2a2a3e', stroke: '#3a3a50', 'stroke-width': '0.5', opacity: '0.9' }));
-		const stxt = svgE('text', { x: mid.x + 10 + sw / 2, y: mid.y, fill: '#7a7a98', 'font-size': '9', 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': "'JetBrains Mono', monospace" });
+		const stxt = svgE('text', { x: mid.x + 12, y: mid.y, fill: '#888', 'font-size': '8.5', 'dominant-baseline': 'central', 'font-family': FONT_MONO, 'text-rendering': 'geometricPrecision' });
 		stxt.textContent = st;
 		g.appendChild(stxt);
 	}
@@ -475,38 +459,37 @@ function renderCrossEdge(edge: IEdge, nodes: LayoutNode[]): SVGElement {
 	const tgtPort = doc.nodes[edge.target.node].ports[edge.target.port];
 	if (!srcPort || !tgtPort) { return g; }
 
-	const src = portCoords(srcNode, srcPort.side);
-	const tgt = portCoords(tgtNode, tgtPort.side);
+	// Right-angled elbow: right edge of source → out → down → back into right edge of target
+	// Always route via the right side of the blocks
+	const margin = 30;
+	const rightEdge = Math.max(srcNode.x + srcNode.w, tgtNode.x + tgtNode.w) + margin;
 
-	const bulge = Math.max(70, Math.abs(tgt.y - src.y) * 0.4);
-	let cpx1 = src.x, cpy1 = src.y;
-	let cpx2 = tgt.x, cpy2 = tgt.y;
+	const srcY = srcNode.y + srcNode.h / 2;
+	const tgtY = tgtNode.y + tgtNode.h / 2;
+	const srcX = srcNode.x + srcNode.w;
+	const tgtX = tgtNode.x + tgtNode.w;
 
-	if (srcPort.side === 'left' || srcPort.side === 'right') {
-		cpx1 = src.x + (srcPort.side === 'right' ? bulge : -bulge);
-	} else {
-		cpy1 = src.y + (srcPort.side === 'bottom' ? bulge : -bulge);
-	}
-	if (tgtPort.side === 'left' || tgtPort.side === 'right') {
-		cpx2 = tgt.x + (tgtPort.side === 'right' ? bulge : -bulge);
-	} else {
-		cpy2 = tgt.y + (tgtPort.side === 'bottom' ? bulge : -bulge);
-	}
+	const d = `M ${srcX} ${srcY} L ${rightEdge} ${srcY} L ${rightEdge} ${tgtY} L ${tgtX} ${tgtY}`;
 
-	const strokeColor = edge.label === 'residual' ? '#a6e3a1' : '#89b4fa';
+	const strokeColor = edge.label === 'residual' ? '#5a9a5a' : '#5a8aaa';
+	// Arrowhead matching the cross edge color
+	const markerId = 'arrow-cross-' + edge.id;
+	const crossMarker = svgE('marker', { id: markerId, markerWidth: '8', markerHeight: '6', refX: '7', refY: '3', orient: 'auto' });
+	crossMarker.appendChild(svgE('path', { d: 'M 0 0 L 8 3 L 0 6 L 2 3 Z', fill: strokeColor, opacity: '0.6' }));
+	g.appendChild(crossMarker);
+
 	g.appendChild(svgE('path', {
-		d: `M ${src.x} ${src.y} C ${cpx1} ${cpy1}, ${cpx2} ${cpy2}, ${tgt.x} ${tgt.y}`,
+		d,
 		fill: 'none',
 		stroke: strokeColor,
-		'stroke-width': '1.5',
-		'stroke-dasharray': '6 4',
-		opacity: '0.5',
+		'stroke-width': '1',
+		opacity: '0.6',
+		'marker-end': `url(#${markerId})`,
 	}));
 
+	// Label on the vertical segment
 	if (edge.label) {
-		const lx = (src.x + tgt.x) / 2 + (srcPort.side === 'right' || srcPort.side === 'left' ? bulge * 0.3 : 0);
-		const ly = (src.y + tgt.y) / 2;
-		const lbl = svgE('text', { x: lx, y: ly - 6, fill: strokeColor, opacity: '0.7', 'font-size': '10', 'font-family': "'JetBrains Mono', monospace" });
+		const lbl = svgE('text', { x: rightEdge + 6, y: (srcY + tgtY) / 2, fill: '#999', 'font-size': '9', 'font-family': FONT_SANS, 'text-rendering': 'geometricPrecision' });
 		lbl.textContent = edge.label;
 		g.appendChild(lbl);
 	}
@@ -533,28 +516,27 @@ function renderLeafView(): void {
 	const x = 40, y = 40, w = 320, h = 100;
 	const accent = ACCENT[node.module_type] || ACCENT.other;
 
-	viewport.appendChild(svgE('rect', { x, y, width: w, height: h, rx: '8', ry: '8', fill: '#2a2a3e', stroke: '#3a3a50', 'stroke-width': '1' }));
-	viewport.appendChild(svgE('rect', { x, y, width: w, height: '5', rx: '8', ry: '8', fill: accent }));
-	viewport.appendChild(svgE('rect', { x, y: y + 3, width: w, height: '3', fill: accent }));
+	viewport.appendChild(svgE('rect', { x, y, width: w, height: h, rx: '4', ry: '4', fill: '#1a1a1a', stroke: '#2a2a2a', 'stroke-width': '1' }));
+	viewport.appendChild(svgE('rect', { x, y, width: '3', height: h, rx: '1.5', ry: '1.5', fill: accent }));
 
-	const nameEl = svgE('text', { x: x + 14, y: y + 28, fill: '#e0e0f0', 'font-size': '14', 'font-weight': '600', 'font-family': "'JetBrains Mono', monospace" });
+	const nameEl = svgE('text', { x: x + 14, y: y + 26, fill: '#ddd', 'font-size': '13', 'font-weight': '500', 'font-family': FONT_SANS, 'text-rendering': 'geometricPrecision' });
 	nameEl.textContent = node.name;
 	viewport.appendChild(nameEl);
 
-	const classEl = svgE('text', { x: x + 14, y: y + 46, fill: '#8888a8', 'font-size': '12', 'font-family': "'JetBrains Mono', monospace" });
+	const classEl = svgE('text', { x: x + 14, y: y + 44, fill: '#888', 'font-size': '11', 'font-family': FONT_SANS, 'text-rendering': 'geometricPrecision' });
 	classEl.textContent = node.class_name + ' \u2022 ' + node.module_type;
 	viewport.appendChild(classEl);
 
 	if (node.input_shapes.length > 0 && node.output_shapes.length > 0) {
-		const shapeText = shapeStr(node.input_shapes[0]) + ' \u2192 ' + shapeStr(node.output_shapes[0]);
-		const st = svgE('text', { x: x + 14, y: y + 66, fill: '#b0b0cc', 'font-size': '11', 'font-family': "'JetBrains Mono', monospace" });
+		const shapeText = shapeStr(node.input_shapes[0]) + '  \u2192  ' + shapeStr(node.output_shapes[0]);
+		const st = svgE('text', { x: x + 14, y: y + 64, fill: '#999', 'font-size': '10', 'font-family': FONT_MONO, 'text-rendering': 'geometricPrecision' });
 		st.textContent = shapeText;
 		viewport.appendChild(st);
 	}
 
 	if (node.operations.length > 0) {
 		const opsText = 'ops: ' + node.operations.join(', ');
-		const ops = svgE('text', { x: x + 14, y: y + 84, fill: '#7a7a98', 'font-size': '10', 'font-family': "'JetBrains Mono', monospace" });
+		const ops = svgE('text', { x: x + 14, y: y + 82, fill: '#3a3a3a', 'font-size': '9.5', 'font-family': FONT_MONO, 'text-rendering': 'geometricPrecision' });
 		ops.textContent = opsText;
 		viewport.appendChild(ops);
 	}
