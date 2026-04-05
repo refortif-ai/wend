@@ -74,7 +74,7 @@ export interface IGraphDocument {
 
 export interface IModelVisualizerService {
 	readonly _serviceBrand: undefined;
-	readonly onDidUpdateGraph: Event<IGraphDocument>;
+	readonly onDidUpdateGraph: Event<IGraphDocument | undefined>;
 	loadGraph(doc: IGraphDocument): void;
 	getGraph(): IGraphDocument | undefined;
 }

@@ -13,7 +13,7 @@ import { IInstantiationService } from '../../../../platform/instantiation/common
 import { IOpenerService } from '../../../../platform/opener/common/opener.js';
 import { IThemeService } from '../../../../platform/theme/common/themeService.js';
 import { IHoverService } from '../../../../platform/hover/browser/hover.js';
-import { IModelVisualizerService, IGraphDocument } from '../common/modelVisualizer.js';
+import { IModelVisualizerService } from '../common/modelVisualizer.js';
 import { IWebviewService, IOverlayWebview } from '../../webview/browser/webview.js';
 import { MutableDisposable } from '../../../../base/common/lifecycle.js';
 import { Dimension, getWindow } from '../../../../base/browser/dom.js';
@@ -41,7 +41,7 @@ export class ModelVisualizerPanel extends ViewPane {
 		super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
 
 		this._register(this._modelVisualizerService.onDidUpdateGraph((doc) => {
-			this._postMessage({ type: 'load_graph', data: doc });
+			this._postMessage({ type: 'load_graph', data: doc ?? null });
 		}));
 	}
 
@@ -96,16 +96,11 @@ export class ModelVisualizerPanel extends ViewPane {
 		webview.claim(this, getWindow(this._container), undefined);
 
 		this._register(webview.onMessage((e: { readonly message: unknown }) => {
-			const msg = e.message as { type: string; data?: unknown };
+			const msg = e.message as { type: string };
 			if (msg.type === 'ready') {
 				this._webviewReady = true;
 				const graph = this._modelVisualizerService.getGraph();
-				if (graph) {
-					this._postMessage({ type: 'load_graph', data: graph });
-				}
-			} else if (msg.type === 'upload_graph') {
-				const doc = msg.data as IGraphDocument;
-				this._modelVisualizerService.loadGraph(doc);
+				this._postMessage({ type: 'load_graph', data: graph ?? null });
 			}
 		}));
 	}
@@ -156,14 +151,6 @@ body { background: var(--surface); color: var(--text-primary); font-family: var(
 	position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
 	text-align: center; color: var(--text-muted); font-size: 13px;
 }
-.upload-btn {
-	display: inline-block; margin-top: 16px; padding: 8px 20px;
-	background: var(--surface-nested); border: 1px solid var(--accent-attention);
-	border-radius: 6px; color: var(--accent-attention); font-family: var(--font-mono);
-	font-size: 12px; cursor: pointer; transition: background 0.15s;
-}
-.upload-btn:hover { background: var(--accent-attention); color: var(--surface); }
-
 /* Toolbar */
 .toolbar {
 	position: absolute; top: 8px; left: 8px; z-index: 10;
@@ -229,20 +216,12 @@ svg.graph:active { cursor: grabbing; }
 <div id="app">
 	<div class="empty-state" id="emptyState">
 		<div style="font-size: 28px; margin-bottom: 8px; opacity: 0.5;">&#9724;</div>
-		<div>No model graph loaded</div>
-		<div style="margin-top: 4px; font-size: 11px;">Upload a graph JSON file to visualize</div>
-		<label class="upload-btn" id="uploadBtnEmpty">
-			Upload Graph JSON
-			<input type="file" accept=".json" id="fileInputEmpty" style="display:none;" />
-		</label>
+		<div>No architecture detected yet.</div>
+		<div style="margin-top: 4px; font-size: 11px;">Place a graph JSON file in <code>.arch/</code> to visualize</div>
 	</div>
 
 	<div class="toolbar" id="toolbar" style="display:none;">
 		<button class="tool-btn" id="fitBtn" title="Fit to view (F)">Fit</button>
-		<label class="tool-btn" id="uploadBtnToolbar" title="Load a new graph" style="cursor:pointer;">
-			Upload
-			<input type="file" accept=".json" id="fileInputToolbar" style="display:none;" />
-		</label>
 	</div>
 
 	<div class="model-badge" id="modelBadge" style="display:none;"></div>
@@ -303,8 +282,6 @@ var searchBar    = document.getElementById('searchBar');
 var searchInput  = document.getElementById('searchInput');
 var minimapDiv   = document.getElementById('minimap');
 var minimapSvg   = document.getElementById('minimapSvg');
-var fileInputE   = document.getElementById('fileInputEmpty');
-var fileInputT   = document.getElementById('fileInputToolbar');
 
 // ---------- Communication ----------
 vscode.postMessage({ type: 'ready' });
@@ -314,29 +291,19 @@ window.addEventListener('message', function(ev) {
 	if (msg.type === 'load_graph') {
 		doc = msg.data;
 		expanded = {};
-		onGraphLoaded();
+		onGraphUpdate();
 	}
 });
 
-function loadFile(file) {
-	var reader = new FileReader();
-	reader.onload = function(e) {
-		try {
-			var parsed = JSON.parse(e.target.result);
-			doc = parsed;
-			expanded = {};
-			vscode.postMessage({ type: 'upload_graph', data: doc });
-			onGraphLoaded();
-		} catch (err) {
-			console.error('Invalid JSON', err);
-		}
-	};
-	reader.readAsText(file);
-}
-fileInputE.addEventListener('change', function() { if (this.files[0]) loadFile(this.files[0]); });
-fileInputT.addEventListener('change', function() { if (this.files[0]) loadFile(this.files[0]); });
-
-function onGraphLoaded() {
+function onGraphUpdate() {
+	if (!doc) {
+		emptyState.style.display = 'flex';
+		toolbar.style.display = 'none';
+		graphSvg.style.display = 'none';
+		minimapDiv.style.display = 'none';
+		modelBadge.style.display = 'none';
+		return;
+	}
 	emptyState.style.display = 'none';
 	toolbar.style.display = 'flex';
 	graphSvg.style.display = 'block';
