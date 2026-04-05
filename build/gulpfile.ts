@@ -14,6 +14,8 @@ import * as compilation from './lib/compilation.ts';
 import * as task from './lib/task.ts';
 import * as util from './lib/util.ts';
 import { useEsbuildTranspile } from './buildConfig.ts';
+import { esbuildExtensions } from './lib/extensions.ts';
+import path from 'path';
 
 // Extension point names
 gulp.task(compilation.compileExtensionPointNamesTask);
@@ -41,11 +43,25 @@ const watchClientTask = useEsbuildTranspile
 	: task.define('watch-client', task.series(util.rimraf('out'), task.parallel(compilation.watchTask('out', false), compilation.watchApiProposalNamesTask, compilation.watchExtensionPointNamesTask, compilation.watchCodiconsTask)));
 gulp.task(watchClientTask);
 
+// Model Visualizer webview
+const compileModelVisualizerTask = task.define('compile-model-visualizer', () =>
+	esbuildExtensions('building model visualizer webview', false, [
+		{ script: path.join(import.meta.dirname, '..', 'extensions', 'model-visualizer', 'webview', 'esbuild.config.mts') }
+	])
+);
+gulp.task(compileModelVisualizerTask);
+
 // All
-const _compileTask = task.define('compile', task.parallel(monacoTypecheckTask, compileClientTask, compileExtensionsTask, compileExtensionMediaTask));
+const _compileTask = task.define('compile', task.parallel(monacoTypecheckTask, compileClientTask, compileExtensionsTask, compileExtensionMediaTask, compileModelVisualizerTask));
 gulp.task(_compileTask);
 
-gulp.task(task.define('watch', task.parallel(/* monacoTypecheckWatchTask, */ watchClientTask, watchExtensionsTask)));
+const watchModelVisualizerTask = task.define('watch-model-visualizer', () =>
+	esbuildExtensions('watching model visualizer webview', true, [
+		{ script: path.join(import.meta.dirname, '..', 'extensions', 'model-visualizer', 'webview', 'esbuild.config.mts') }
+	])
+);
+
+gulp.task(task.define('watch', task.parallel(/* monacoTypecheckWatchTask, */ watchClientTask, watchExtensionsTask, watchModelVisualizerTask)));
 
 // Default
 gulp.task('default', _compileTask);

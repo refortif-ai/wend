@@ -51,6 +51,7 @@ export const unicodeFilter = Object.freeze<string[]>([
 	'!extensions/markdown-math/notebook-out/**',
 	'!extensions/mermaid-chat-features/chat-webview-out/**',
 	'!extensions/ipynb/notebook-out/**',
+	'!extensions/model-visualizer/webview/**',
 	'!extensions/notebook-renderers/renderer-out/**',
 	'!extensions/php-language-features/src/features/phpGlobalFunctions.ts',
 	'!extensions/terminal-suggest/src/completions/upstream/**',
@@ -63,6 +64,7 @@ export const unicodeFilter = Object.freeze<string[]>([
 	'!extensions/**/colorize-fixtures/**',
 	'!extensions/terminal-suggest/src/shell/fishBuiltinsCache.ts',
 
+	'!src/vs/workbench/contrib/modelVisualizer/browser/media/**',
 	'!src/vs/base/browser/dompurify/**',
 	'!src/vs/workbench/services/keybinding/browser/keyboardLayouts/**',
 	'!src/vs/workbench/contrib/terminal/common/scripts/psreadline/**',
@@ -150,6 +152,8 @@ export const indentationFilter = Object.freeze<string[]>([
 	'!extensions/ipynb/notebook-out/**',
 	'!extensions/notebook-renderers/renderer-out/*.js',
 	'!extensions/simple-browser/media/*.js',
+	'!extensions/model-visualizer/webview/**',
+	'!src/vs/workbench/contrib/modelVisualizer/browser/media/**',
 ]);
 
 export const copyrightFilter = Object.freeze<string[]>([
@@ -194,6 +198,8 @@ export const copyrightFilter = Object.freeze<string[]>([
 	'!extensions/html-language-features/server/src/modes/typescript/*',
 	'!extensions/*/server/bin/*',
 	'!src/vs/workbench/contrib/terminal/common/scripts/psreadline/**',
+	'!extensions/model-visualizer/webview/**',
+	'!src/vs/workbench/contrib/modelVisualizer/browser/media/**',
 ]);
 
 export const tsFormattingFilter = Object.freeze<string[]>([
@@ -213,6 +219,7 @@ export const tsFormattingFilter = Object.freeze<string[]>([
 	'!extensions/html-language-features/server/lib/jquery.d.ts',
 	'!extensions/terminal-suggest/src/shell/zshBuiltinsCache.ts',
 	'!extensions/terminal-suggest/src/shell/fishBuiltinsCache.ts',
+	'!extensions/model-visualizer/webview/**',
 ]);
 
 export const eslintFilter = Object.freeze<string[]>([
